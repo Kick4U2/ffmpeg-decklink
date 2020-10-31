@@ -35,7 +35,7 @@ Install utility
 ----------------------------------   
 
     $ sudo apt update
-    $ sudo apt-get install git nasm cmake autoconf libtool libunistring-dev libass-dev libvorbis-dev libvpx-dev
+    $ sudo apt-get install git nasm cmake autoconf libtool libunistring-dev libass-dev libvorbis-dev libvpx-dev libgnutls28-dev 
     $ sudo apt upgrade
     
     $ sudo apt-get install libnuma-dev
