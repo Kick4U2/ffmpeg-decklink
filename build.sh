@@ -63,46 +63,10 @@ download \
 	"http://www.tortall.net/projects/yasm/releases/"
 
 download \
-	"last_stable_x264.tar.bz2" \
+	"ffmpeg-snapshot.tar.bz2" \
 	"" \
 	"" \
-	"https://download.videolan.org/pub/videolan/x264/snapshots/"
-
-download \
-	"x265_2.9.tar.gz" \
-	"" \
-	"" \
-	"https://bitbucket.org/multicoreware/x265/downloads/"
-
-download \
-	"master" \
-	"fdk-aac.tar.gz" \
-	"" \
-	"https://github.com/mstorsjo/fdk-aac/tarball"
-
-download \
-	"lame-3.99.5.tar.gz" \
-	"" \
-	"84835b313d4a8b68f5349816d33e07ce" \
-	"http://downloads.sourceforge.net/project/lame/lame/3.99"
-
-download \
-	"opus-1.1.tar.gz" \
-	"" \
-	"c5a8cf7c0b066759542bc4ca46817ac6" \
-	"http://downloads.xiph.org/releases/opus"
-
-download \
-	"faac-1.28.tar.bz2" \
-	"" \
-	"c5dde68840cefe46532089c9392d1df0" \
-	"http://downloads.sourceforge.net/faac/"
-
-download \
-	"n4.1.tar.gz" \
-	"" \
-	"" \
-	"https://github.com/FFmpeg/FFmpeg/archive/"
+	"https://ffmpeg.org/releases/"
 
 echo "*** Building yasm ***"
 cd $BUILD_DIR/yasm*
@@ -111,53 +75,92 @@ make -j $jval
 make install
 
 echo "*** Building x264 ***"
-cd $BUILD_DIR/x264*
+cd $BUILD_DIR
+git -C x264 pull 2> /dev/null || git clone --depth 1 https://code.videolan.org/videolan/x264.git
+cd x264
 PATH="$BIN_DIR:$PATH" ./configure --prefix=$TARGET_DIR --enable-static --disable-shared --disable-opencl --enable-pic
 PATH="$BIN_DIR:$PATH" make -j $jval
 make install
 
 echo "*** Building x265 ***"
-cd $BUILD_DIR/x265*
-cd build/linux
+cd $BUILD_DIR
+git -C x265_git pull 2> /dev/null || git clone https://bitbucket.org/multicoreware/x265_git
+cd x265_git/build/linux
 PATH="$BIN_DIR:$PATH" cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX="$TARGET_DIR" -DENABLE_SHARED:bool=off ../../source
 make -j $jval
 make install
 
 echo "*** Building fdk-aac ***"
-cd $BUILD_DIR/mstorsjo-fdk-aac*
+cd $BUILD_DIR
+git -C fdk-aac pull 2> /dev/null || git clone --depth 1 https://github.com/mstorsjo/fdk-aac
+cd fdk-aac
 autoreconf -fiv
 ./configure --prefix=$TARGET_DIR --disable-shared
 make -j $jval
 make install
 
 echo "*** Building mp3lame ***"
-cd $BUILD_DIR/lame*
+cd $BUILD_DIR
+wget -O lame-3.100.tar.gz https://downloads.sourceforge.net/project/lame/lame/3.100/lame-3.100.tar.gz
+tar xzvf lame-3.100.tar.gz
+cd lame-3.100
 ./configure --prefix=$TARGET_DIR --enable-nasm --disable-shared
 make -j $jval
+make install
 
 echo "*** Building opus ***"
-cd $BUILD_DIR/opus*
+cd $BUILD_DIR
+git -C opus pull 2> /dev/null || git clone --depth 1 https://github.com/xiph/opus.git
+cd opus
+./autogen.sh
 ./configure --prefix=$TARGET_DIR --disable-shared
 make -j $jval
+make install
+
+echo "*** Building aom ***"
+cd $BUILD_DIR
+git -C aom pull 2> /dev/null || git clone --depth 1 https://aomedia.googlesource.com/aom
+mkdir -p aom_build
+cd aom_build
+PATH="$BIN_DIR:$PATH" cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX="$TARGET_DIR" -DENABLE_SHARED=off -DENABLE_NASM=on ../aom
+PATH="$BIN_DIR:$PATH" make -j $jval
+make install
+
+echo "*** Building svtav1 ***"
+cd $BUILD_DIR
+git -C SVT-AV1 pull 2> /dev/null || git clone https://github.com/AOMediaCodec/SVT-AV1.git
+mkdir -p SVT-AV1/build
+cd SVT-AV1/build
+PATH="$BIN_DIR:$PATH" cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX="$TARGET_DIR" -DCMAKE_BUILD_TYPE=Release -DBUILD_DEC=OFF -DBUILD_SHARED_LIBS=OFF ..
+PATH="$HOME/bin:$PATH" make -j $jval
+make install
+
 
 # FFMpeg
 echo "*** Building FFmpeg ***"
-cd $BUILD_DIR/FFmpeg*
+cd $BUILD_DIR/ffmpeg
 PATH="$BIN_DIR:$PATH" \
 PKG_CONFIG_PATH="$TARGET_DIR/lib/pkgconfig" ./configure \
   --prefix="$TARGET_DIR" \
-  --pkg-config-flags="--static" \
+  --pkg-config="pkg-config --static" \
   --extra-cflags="-I$TARGET_DIR/include -I$TARGET_DIR/include/bm -std=c11" \
   --extra-ldflags="-L$TARGET_DIR/lib" \
   --bindir="$BIN_DIR" \
   --enable-static \
   --enable-decklink \
   --enable-gpl \
+  --enable-gnutls \
+  --enable-libaom \
+  --enable-libass \
   --enable-libfdk-aac \
+  --enable-libfreetype \
+  --enable-libmp3lame \
+  --enable-libopus \
+  --enable-libsvtav1 \
+  --enable-libvorbis \
+  --enable-libvpx \
   --enable-libx264 \
   --enable-nonfree \
-  --extra-cflags="-I/home/mteg_vas/capture/Blackmagic_DeckLink_SDK_10.11.4/Linux/include/" \
-  --extra-ldflags="-L/home/mteg_vas/capture/Blackmagic_DeckLink_SDK_10.11.4/Linux/include/"
 # Stupid hack to override ffmpeg's too-automatic build process
 make -j $jval
 make install -j $jval
