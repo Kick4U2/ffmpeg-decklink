@@ -1,20 +1,24 @@
 FFmpeg w/ decklink
 ==================
 
-Static build of `ffmpeg` with h264 and decklink   
+Static build of `ffmpeg` with h264 and decklink focused on Ubuntu
+Also used guide from https://trac.ffmpeg.org/wiki/CompilationGuide/Ubuntu
 
 
 original from https://github.com/kreldjarn/ffmpeg-decklink   
 Modified by : kiokahn   
 FFmpeg version : 4.1   
-Tested OS : Ubuntu 18.04 LTS    
-Decklink driver & SDK version : 10.11.4    
+Tested OS : Ubuntu 20.04 LTS    
+Decklink driver & SDK version : 11.6
 
 
 Install decklink driver & software   
 ----------------------------------   
 
-Check 'ReadMe.txt' on the Blackmagic_Desktop_Video_Linux_10.11.4
+Check 'ReadMe.txt' on the Blackmagic_Desktop_Video_Linux_11.6
+
+    $ sudo apt-get install -f dkms
+    $ sudo dpkg -i desktopvideo_*.deb
 
 
 Check driver   
@@ -30,18 +34,42 @@ Check driver
 Install utility   
 ----------------------------------   
 
-    $ sudo apt-get install autoreconf
-    $ sudo apt-get install libtool
-    $ sudo apt-get install git
-    $ sudo apt-get install cmake
-    $ sudo apt-get install nasm
-    $ sudo att-get install libsdl2-dev
+    $ sudo apt update
+    $ sudo apt-get install git nasm cmake autoconf libtool libunistring-dev libass-dev libvorbis-dev libvpx-dev
+    $ sudo apt upgrade
+    
+    $ sudo apt-get install libnuma-dev
+    $ sudo apt-get install libsdl2-dev
     $ sudo apt install python-pip
     $ ?pip install cryptography --upgrade
     $ ? sudo apt-get install python-yenc
     $ ? sudo apt-get install build-essential libssl-dev libffi-dev python-dev
     $ ? python -c "import cryptography; print dir(cryptography); print cryptography.__version__"
 
+
+LIST FROM FFMPEG SITE:
+sudo apt-get update -qq && sudo apt-get -y install \
+  autoconf \
+  automake \
+  build-essential \
+  cmake \
+  git-core \
+  libass-dev \
+  libfreetype6-dev \
+  libgnutls28-dev \
+  libsdl2-dev \
+  libtool \
+  libva-dev \
+  libvdpau-dev \
+  libvorbis-dev \
+  libxcb1-dev \
+  libxcb-shm0-dev \
+  libxcb-xfixes0-dev \
+  pkg-config \
+  texinfo \
+  wget \
+  yasm \
+  zlib1g-dev
 
 Build
 -----
@@ -161,4 +189,3 @@ Reference
     http://manpages.ubuntu.com/manpages/bionic/man1/ffmpeg-devices.1.html   
     https://trac.ffmpeg.org/wiki/Capture/Desktop   
     https://trac.ffmpeg.org/wiki/Encode/H.264   
-
