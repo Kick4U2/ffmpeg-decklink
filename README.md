@@ -162,7 +162,7 @@ Preview
 Capture   
 ---------
 
-    $ ./bin/ffmpeg -f decklink -video_input hdmi -duplex_mode full -raw_format argb -i 'DeckLink Mini Recorder 4K' -video_size 1920x1080 -framerate 30 output.mp4
+    $ ./bin/ffmpeg -f decklink -video_input hdmi -i 'DeckLink Mini Recorder 4K' output.mp4
 
 or
 
